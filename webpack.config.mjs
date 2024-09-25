@@ -89,16 +89,15 @@ export default env => {
        * in their `package.json` might not work correctly.
        */
       ...Repack.getResolveOptions(platform),
-      conditionNames: ['default'],
       /**
        * Uncomment this to ensure all `react-native*` imports will resolve to the same React Native
        * dependency. You might need it when using workspaces/monorepos or unconventional project
        * structure. For simple/typical project you won't need it.
        */
-      // alias: {
-      //   //   'react-native': reactNativePath,
-      //   axios: path.join(dirname, 'node_modules/axios/dist/node/axios.js'),
-      // },
+      alias: {
+        //'react-native': reactNativePath,
+        axios: path.join(dirname, 'node_modules/axios/dist/axios.js'),
+      },
     },
     /**
      * Configures output.
@@ -152,55 +151,9 @@ export default env => {
       rules: [
         {
           test: /\.[cm]?[jt]sx?$/,
-          include: [
-            /node_modules(.*[/\\])+react-native/,
-            /node_modules(.*[/\\])+@react-native/,
-            /node_modules(.*[/\\])+@react-navigation/,
-            /node_modules(.*[/\\])+@react-native-community/,
-            /node_modules(.*[/\\])+expo/,
-            /node_modules(.*[/\\])+pretty-format/,
-            /node_modules(.*[/\\])+metro/,
-            /node_modules(.*[/\\])+abort-controller/,
-            /node_modules(.*[/\\])+@callstack[/\\]repack/,
-          ],
+          include: [/node_modules(?!\/nanoid)/],
           use: 'babel-loader',
-        },
-        // {
-        //   test: /\.[jt]sx?$/,
-        //   // include: [/node_modules(.*[/\\])+axios\//],
-        //   exclude: /node_modules/,
-        //   use: {
-        //     loader: 'babel-loader',
-        //     options: {
-        //       presets: [
-        //         [
-        //           'module:metro-react-native-babel-preset',
-        //           {disableImportExportTransform: true},
-        //         ],
-        //       ],
-        //       plugins: ['@babel/plugin-transform-runtime'],
-        //     },
-        //   },
-        // },
-        // {
-        //   test: /\.[cm]?[jt]sx?$/,
-        //   include: [/node_modules(?!\/nanoid)/, /node_modules(?!\/axios)/],
-        //   use: 'babel-loader',
-        // },
-        {
-          test: /\.[jt]sx?$/,
-          include: [/node_modules(.*[/\\])+axios\//],
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                [
-                  'module:metro-react-native-babel-preset',
-                  {disableImportExportTransform: true},
-                ],
-              ],
-            },
-          },
+          type: 'javascript/dynamic',
         },
         /**
          * Here you can adjust loader that will process your files.
@@ -222,6 +175,22 @@ export default env => {
             },
           },
         },
+
+        {
+          test: /\.(js|jsx)$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['@babel/preset-env', {loose: true}],
+                '@babel/preset-react',
+              ],
+              plugins: ['@babel/plugin-transform-runtime'],
+            },
+          },
+        },
+
         /**
          * This loader handles all static assets (images, video, audio and others), so that you can
          * use (reference) them inside your application.
